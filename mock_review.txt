@@ -1,0 +1,185 @@
+==================================================
+⚠ MOCK MODE ENABLED
+⚠ NO GEMINI API CALL WAS MADE
+⚠ THIS REPORT IS GENERATED FROM mock_review.txt
+==================================================
+
+Review Report
+
+This is a simulated review generated for testing IntelliReview AI.
+
+Purpose:
+
+- UI Testing
+- Dashboard Testing
+- PDF Export Testing
+- TXT Export Testing
+- Parser Testing
+- Repository Analysis Testing
+
+This report does NOT represent real AI analysis.
+
+--------------------------------------------------
+
+Code Analysis
+
+Source Code:
+
+password = "admin123"
+
+for i in range(100):
+    for j in range(100):
+        print(i, j)
+
+--------------------------------------------------
+
+1. Bugs
+
+Category: Dead Code
+
+Severity: Low
+
+Explanation:
+
+The variable password is declared but never used anywhere in the program.
+
+Recommendation:
+
+Remove unused variables or document their purpose.
+
+--------------------------------------------------
+
+2. Security Vulnerabilities
+
+Category: Hardcoded Credentials
+
+Severity: Critical
+
+Explanation:
+
+A hardcoded password was found inside the source code.
+
+Recommendation:
+
+- Move secrets to environment variables
+- Use secret managers
+- Avoid storing credentials in source code
+
+--------------------------------------------------
+
+3. Code Smells
+
+Category: Maintainability Issues
+
+Severity: Medium
+
+Explanation:
+
+Several maintainability concerns were identified.
+
+Recommendation:
+
+- Replace magic numbers with constants
+- Improve naming
+- Separate unrelated logic
+
+--------------------------------------------------
+
+4. Performance Issues
+
+Category: Excessive I/O Operations
+
+Severity: Medium
+
+Explanation:
+
+The program performs many print operations which can become expensive at scale.
+
+Recommendation:
+
+- Reduce console output
+- Use logging
+- Batch operations where possible
+
+--------------------------------------------------
+
+5. Complexity Issues
+
+Category: Cognitive Complexity
+
+Severity: Low
+
+Explanation:
+
+The script combines unrelated responsibilities.
+
+Recommendation:
+
+Follow the Single Responsibility Principle.
+
+--------------------------------------------------
+
+6. Refactoring Opportunities
+
+Category: Readability and Structure
+
+Severity: Medium
+
+Recommendation:
+
+- Remove dead code
+- Extract functions
+- Add documentation
+- Improve modularity
+
+--------------------------------------------------
+
+Positive Observations
+
+- Syntax is valid
+- Code executes successfully
+- Structure is easy to understand
+
+--------------------------------------------------
+
+Repository Readiness Assessment
+
+Production Readiness: MOCK
+Security Readiness: MOCK
+Maintainability: MOCK
+Scalability: MOCK
+Performance: MOCK
+
+--------------------------------------------------
+
+Overall Code Quality Score
+
+Score: 999/100
+
+Justification:
+
+This is an intentionally unrealistic score used to indicate that the application is currently running in MOCK MODE.
+
+--------------------------------------------------
+
+Severity Summary
+
+Critical: 99
+
+High: 99
+
+Medium: 99
+
+Low: 99
+
+--------------------------------------------------
+
+FINAL MOCK MODE VERDICT
+
+If you can read this message, IntelliReview AI is NOT using Gemini.
+
+The application is currently reading results from:
+
+mock_review.txt
+
+Switch USE_MOCK = False to enable real AI analysis.
