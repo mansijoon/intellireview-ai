@@ -1,6 +1,6 @@
 # IntelliReview AI
 
-AI-powered code review platform that analyzes source code, repositories, GitHub projects, and pull requests to identify security vulnerabilities, code smells, architectural issues, and maintainability concerns.
+IntelliReview AI is an AI-powered Software Engineering Intelligence Platform that helps developers understand, evaluate, and improve code quality across entire repositories.
 
 The system combines static analysis, repository metrics, architecture analysis, risk scoring, and Large Language Models (Gemini) to generate actionable code review reports and remediation suggestions.
 
