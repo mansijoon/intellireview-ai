@@ -1,228 +1,358 @@
 # IntelliReview AI
 
-IntelliReview AI is an AI-powered Software Engineering Intelligence Platform that helps developers understand, evaluate, and improve code quality across entire repositories.
+> **AI-Powered Engineering Intelligence Platform for Repository Analysis, Architecture Assessment, Security Review, and Automated Code Intelligence**
 
-The system combines static analysis, repository metrics, architecture analysis, risk scoring, and Large Language Models (Gemini) to generate actionable code review reports and remediation suggestions.
+IntelliReview AI is an AI-powered **Engineering Intelligence Platform** that analyzes software repositories to help developers understand code quality, architecture, technical debt, maintainability, and security.
+
+Unlike traditional code review tools that focus only on individual files or pull requests, IntelliReview AI performs **repository-wide engineering analysis**, combining static analysis, dependency analysis, architectural insights, technical debt evaluation, repository health metrics, and Large Language Models (Google Gemini) to generate actionable engineering reports.
 
 ---
 
 # Features
 
-## Code Analysis
-
-* Single File Analysis
-* Repository ZIP Analysis
-* GitHub Repository Analysis
-* Pull Request Review
-
-## Static Analysis
-
-* Hardcoded Secret Detection
-* Unused Import Detection
-* Unused Variable Detection
-* Duplicate Function Detection
-* Dead Function Detection
-* Complexity Analysis
-* Code Smell Detection
-
 ## Repository Analysis
 
-* Repository Health Score
-* Architecture Analysis
-* Architecture Score
-* Risk Ranking
-* Repository Executive Summary
-
-## AI Features
-
-* Gemini-Powered Code Reviews
-* AI Fix Suggestions
-* Automated Recommendations
-* Executive Summaries
-
-## Reporting
-
-* Severity Dashboard
-* Historical Comparison
-* PDF Report Generation
-* Repository Insights
+- Repository ZIP Analysis
+- GitHub Repository Analysis
+- Repository Health Score
+- Repository Executive Summary
+- Repository Technical Debt Analysis
+- Repository Security Analysis
+- Repository Dependency Analysis
+- Repository Architecture Analysis
+- Repository Risk Ranking
+- Repository Refactoring Priority
+- Repository Root Cause Analysis
 
 ---
 
-# Screenshots
+## Code Analysis
 
-## Landing Page
+- Single File Analysis
+- Pull Request Review
+- Static Code Analysis
+- Complexity Analysis
+- Code Smell Detection
+- Maintainability Analysis
 
-![Landing Page](assets/landing.png)
+---
 
-## Severity Dashboard
+## Dependency Intelligence
 
-![Severity Dashboard](assets/severity.png)
+- Interactive Dependency Graph
+- Circular Dependency Detection
+- Module Dependency Mapping
+- High-Risk Module Identification
+- Dependency Visualization (PyVis)
 
-## Executive Summary
+---
 
-![Executive Summary](assets/executive_summary.png)
+## Security Analysis
 
-## Repository Risk Ranking
+- Hardcoded Secret Detection
+- Repository Security Score
+- Security Summary
+- Vulnerability Hotspot Identification
 
-![Risk Ranking](assets/risk_ranking.png)
+---
 
-## AI Fix Suggestions
+## Architecture Intelligence
 
-![AI Fix Suggestions](assets/ai_fixes.png)
+- Architecture Analysis
+- Architecture Score
+- Layer Dependency Analysis
+- High Coupling Detection
+- Structural Complexity Assessment
+
+---
+
+## Engineering Intelligence
+
+- Technical Debt Estimation
+- Module Risk Ranking
+- Complexity Heatmap
+- Refactoring Priority Ranking
+- Root Cause Analysis
+- Repository Health Metrics
+
+---
+
+## AI Features
+
+Powered by **Google Gemini 2.5 Flash**
+
+- AI Code Review
+- AI Repository Review
+- AI Fix Suggestions
+- Engineering Recommendations
+- Executive Summaries
+- Architecture Recommendations
+
+---
+
+## Reporting
+
+- Executive Summary Dashboard
+- Severity Dashboard
+- Security Dashboard
+- Repository Metrics Dashboard
+- PDF Report Generation
+- Text Report Generation
+
+---
+
+# Supported Workflows
+
+## Single File Analysis
+
+Analyze individual source files.
+
+Provides:
+
+- Static Analysis
+- Security Review
+- Complexity Metrics
+- AI Review
+- Fix Suggestions
+
+---
+
+## Repository Analysis
+
+Analyze an entire software repository.
+
+Provides:
+
+- Repository Health Score
+- Architecture Analysis
+- Dependency Graph
+- Circular Dependency Detection
+- Technical Debt Analysis
+- Security Analysis
+- Risk Ranking
+- Complexity Heatmap
+- Refactoring Priority
+- Root Cause Analysis
+- Executive Summary
+
+---
+
+## GitHub Repository Analysis
+
+Analyze public GitHub repositories directly without downloading them manually.
+
+---
+
+## Pull Request Review
+
+Analyze pull request diffs.
+
+Provides:
+
+- Severity Classification
+- Security Findings
+- AI Review
+- Suggested Fixes
 
 ---
 
 # Architecture
 
-```text
-User Input
-    |
-    v
-Streamlit UI
-    |
-    v
-Static Analysis Engine
-    |
-    +---- Security Analysis
-    |
-    +---- Repository Analysis
-    |
-    +---- Architecture Analysis
-    |
-    v
-Gemini Review Engine
-    |
-    v
-AI Fix Suggestions
-    |
-    v
-Executive Summary & Reports
-```
+
+                     User
+                       │
+                       ▼
+                Streamlit Interface
+                       │
+                       ▼
+        ┌─────────────────────────────────┐
+        │ Repository Processing Engine    │
+        └─────────────────────────────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+ Static Analysis   Dependency     Repository
+     Engine         Analysis        Metrics
+        │              │              │
+        ▼              ▼              ▼
+ Security        Architecture    Technical Debt
+ Analysis          Analysis         Analysis
+        │              │              │
+        └──────────────┼──────────────┘
+                       ▼
+              Engineering Intelligence
+                       │
+                       ▼
+            Google Gemini 2.5 Flash
+                       │
+                       ▼
+             AI Review & Recommendations
+                       │
+                       ▼
+         Dashboards • Reports • PDF Export
+
 
 ---
 
 # Tech Stack
 
-### Frontend
+## Frontend
 
-* Streamlit
+- Streamlit
 
-### Backend
+## Backend
 
-* Python
+- Python
 
-### AI
+## AI
 
-* Google Gemini 2.5 Flash
+- Google Gemini 2.5 Flash
 
-### Analysis
+## Static Analysis
 
-* AST
-* Static Analysis
-* Repository Metrics
-* Risk Scoring
+- Python AST
+- Custom Static Analysis Engine
 
-### Reporting
+## Repository Intelligence
 
-* PDF Generation
-* Charts & Dashboards
+- Dependency Graph Analysis
+- Technical Debt Analysis
+- Architecture Analysis
+- Repository Metrics
+
+## Visualization
+
+- Plotly
+- PyVis
+- Matplotlib
+
+## Reporting
+
+- ReportLab
+- PDF Reports
 
 ---
 
 # Installation
 
-Clone the repository:
+Clone the repository
 
-```bash
+
 git clone https://github.com/yourusername/intellireview-ai.git
 cd intellireview-ai
-```
 
-Create a virtual environment:
 
-```bash
+Create a virtual environment
+
+
 python -m venv venv
+
+
+Linux / macOS
+
+
 source venv/bin/activate
-```
 
-Install dependencies:
 
-```bash
+Windows
+
+
+venv\Scripts\activate
+
+
+Install dependencies
+
+
 pip install -r requirements.txt
-```
 
-Create a `.env` file:
 
-```env
+Create a `.env`
+
+
 GEMINI_API_KEY=YOUR_API_KEY
-```
 
-Run the application:
 
-```bash
+Run
+
+
 streamlit run app.py
-```
 
----
-
-# Usage
-
-### Single File Analysis
-
-Upload a Python, Java, C++, or JavaScript file and receive:
-
-* Static Analysis
-* Security Review
-* AI Review
-* Fix Suggestions
-
-### Repository Analysis
-
-Upload a repository ZIP file to receive:
-
-* Repository Health Score
-* Architecture Analysis
-* Risk Ranking
-* Executive Summary
-
-### Pull Request Review
-
-Paste a pull request diff and receive:
-
-* Severity Classification
-* Security Findings
-* AI Recommendations
 
 ---
 
 # Project Structure
 
-```text
 intellireview-ai/
-│
+
 ├── analyzer/
+│   ├── dependency/
+│   ├── ...
+│
 ├── tests/
-├── assets/
+│
 ├── uploads/
+├── reports/
+├── assets/
+│
 ├── app.py
 ├── requirements.txt
 ├── README.md
 └── .gitignore
-```
+
+
+
+
+# Engineering Reports
+
+The platform generates insights including:
+
+- Repository Health Score
+- Architecture Score
+- Security Score
+- Technical Debt
+- Dependency Graph
+- Circular Dependencies
+- Module Risk Ranking
+- Refactoring Priority
+- Complexity Heatmap
+- Root Cause Analysis
+- AI Review
+- AI Fix Suggestions
+- Executive Summary
+- PDF Engineering Report
 
 ---
 
-# Future Improvements
+# Current Capabilities
 
-* Real-Time GitHub Webhook Integration
-* Multi-Language Support Expansion
-* Trend Analysis Dashboard
-* Repository Benchmarking
-* CI/CD Integration
-* Team Collaboration Features
+- Repository Intelligence
+- Static Analysis
+- Dependency Analysis
+- Architecture Analysis
+- Technical Debt Analysis
+- Security Analysis
+- AI Code Review
+- AI Repository Review
+- Executive Reporting
+- Interactive Dependency Visualization
 
 ---
 
+# Roadmap (Tier 2)
 
+- Incremental Repository Analysis
+- Historical Trend Analysis
+- GitHub Webhooks
+- CI/CD Integration
+- Team Dashboards
+- Repository Benchmarking
+- Multi-Language Repository Support
+- Custom Engineering Rules
+- Developer Analytics
+- Organization-Level Reporting
 
+---
+
+# License
+
+This project is intended for educational, research, and portfolio purposes.
