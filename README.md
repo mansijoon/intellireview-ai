@@ -8,6 +8,15 @@ IntelliReview AI is an AI-powered **Engineering Intelligence Platform** that ana
 
 Unlike traditional code review tools that focus only on individual files or pull requests, IntelliReview AI performs **repository-wide engineering analysis**, combining static analysis, dependency analysis, architectural insights, technical debt evaluation, repository health metrics, and Large Language Models (Google Gemini) to generate actionable engineering reports.
 
+
+## AI-Assisted Development
+
+This project was developed using:
+
+- OpenAI GPT-5.6 for engineering design, implementation support, debugging, and documentation.
+- OpenAI Codex for repository analysis, architectural refinement, code review, and implementation improvements during development.
+- Google Gemini 2.5 Flash as the runtime LLM used by the application for AI-powered repository analysis and recommendations.
+
 ---
 
 # Features
