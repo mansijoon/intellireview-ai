@@ -45,7 +45,7 @@ Credentials should not be stored in source code.
 """
 
     prompt = f"""
-You are an expert software engineer performing a professional code review.
+You are a Senior Google Software Engineer.
 
 Source Code:
 

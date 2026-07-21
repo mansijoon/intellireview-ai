@@ -1,6 +1,5 @@
 def calculate_repository_health(
-    repo_stats,
-    findings=None
+    repo_stats
 ):
 
     score = 100
@@ -29,27 +28,6 @@ def calculate_repository_health(
 
     elif repo_stats["imports"] > 100:
         score -= 2
-
-    if findings:
-
-        for finding in findings:
-
-            severity = finding.get(
-                "severity",
-                ""
-            )
-
-            if severity == "Critical":
-                score -= 15
-
-            elif severity == "High":
-                score -= 10
-
-            elif severity == "Medium":
-                score -= 5
-
-            elif severity == "Low":
-                score -= 2
 
     score = max(
         0,

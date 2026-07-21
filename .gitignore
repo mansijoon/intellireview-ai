@@ -1,28 +1,47 @@
-venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
 
+# Virtual environments
+venv/
+.venv/
+
+# Environment variables
 .env
 
-uploads/extracted_repo/
-uploads/github_repo/
-uploads/repository.zip
-
-reports/
-*.pdf
-
-temp_repo/
-
-assets/*.tmp
-
-.git/
-
-*.log
-
-uploads/*.zip
-
-.history/
-
+# Streamlit
 .streamlit/
 
+# Runtime/generated files
+uploads/
+temp_repo/
+reports/
+dependency_graph.html
+review_report.pdf
+sample_report.pdf
+
+# IDE
+.vscode/
+.idea/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Test cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Misc
+requirements_full.txt

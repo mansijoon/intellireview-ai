@@ -94,6 +94,10 @@ from analyzer.executive_summary import (
     generate_executive_summary
 )
 
+from analyzer.repository_dependency_analyzer import (
+    analyze_repository_dependencies
+)
+
 from analyzer.repository_executive_summary import (
     generate_repository_executive_summary
 )
@@ -121,6 +125,32 @@ from analyzer.pr_review import (
 from analyzer.historical_comparison import (
     compare_versions
 )
+
+from analyzer.repository_technical_debt import (
+    analyze_repository_technical_debt
+)
+
+from analyzer.root_cause_analysis import (
+    analyze_root_causes
+)
+
+from analyzer.module_risk_ranking import (
+    rank_modules
+)
+
+from analyzer.complexity_heatmap import (
+    generate_complexity_heatmap
+)
+
+from analyzer.repository_security import (
+    analyze_repository_security
+)
+
+from analyzer.refactoring_priority import (
+    generate_refactoring_priority
+)
+
+import streamlit.components.v1 as components
 
 from analyzer.history_store import (
     get_previous_score
@@ -249,6 +279,10 @@ if (
             repo_stats,
             file_count
         )
+
+        repo_health_score = calculate_repository_health(
+            repo_stats
+        )
         
         chart_data = get_repository_chart_data(
             repo_stats
@@ -257,16 +291,104 @@ if (
         repo_files = get_repository_files(
             repo_path
         )
-        
-        repository_findings = analyze_repository_static(
-            repo_path,
-            repo_files
+
+        dependency_analysis = analyze_repository_dependencies(
+            repo_path
         )
-        
-        repo_health_score = calculate_repository_health(
-            repo_stats,
-            repository_findings
+
+        technical_debt = analyze_repository_technical_debt(
+            repo_path
         )
+
+        module_risks = rank_modules(
+            dependency_analysis,
+            technical_debt["module_scores"]
+        )
+
+        complexity_heatmap = generate_complexity_heatmap(
+            repo_path
+        )
+
+        st.subheader("Dependency Analysis")
+
+        d1, d2, d3 = st.columns(3)
+
+        with d1:
+            st.metric(
+                "Modules",
+                dependency_analysis["total_modules"]
+            )
+
+        with d2:
+            st.metric(
+                "Internal Dependencies",
+                dependency_analysis["internal_dependencies"]
+            )
+
+        with d3:
+            st.metric(
+                "External Dependencies",
+                dependency_analysis["external_dependencies"]
+            )
+
+        st.divider()
+
+        left, right = st.columns(2)
+
+        with left:
+            st.markdown("#### Most Depended Modules")
+
+            
+
+            depended_df = pd.DataFrame(
+                [
+                    {
+                        "Module": module.name,
+                        "Referenced By": len(module.imported_by),
+                    }
+                    for module in dependency_analysis["most_depended_modules"][:10]
+                ]
+            )
+
+            st.dataframe(
+                depended_df,
+                use_container_width=True,
+                hide_index=True
+            )
+
+        with right:
+            st.markdown("#### Most Dependent Modules")
+
+            dependent_df = pd.DataFrame(
+                [
+                    {
+                        "Module": module.name,
+                        "Dependencies": len(module.imports),
+                    }
+                    for module in dependency_analysis["most_dependent_modules"][:10]
+                ]
+            )
+
+            st.dataframe(
+                dependent_df,
+                use_container_width=True,
+                hide_index=True
+            )
+
+        
+
+
+        security_findings = analyze_repository_security(
+            repo_path
+        )
+
+
+        refactoring_priority = generate_refactoring_priority(
+            module_risks,
+            complexity_heatmap,
+            technical_debt
+        )
+
 
         file_risks = rank_repository_files(
             repo_path,
@@ -287,10 +409,84 @@ if (
             repo_summary
         )
 
+        st.metric(
+            "Technical Debt Score",
+            f'{technical_debt["average_score"]:.1f}/100'
+        )
+
+        st.subheader(
+            "Dependency Graph"
+        )
+
+        network = dependency_analysis["visualization"]
+
+        network.save_graph("dependency_graph.html")
+
+        with open(
+            "dependency_graph.html",
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            components.html(
+                f.read(),
+                height=800,
+                scrolling=True
+            )
+
+        st.subheader(
+            "Circular Dependencies"
+        )
+
+        
+
+        
+
+        st.subheader(
+            "Module Risk Ranking"
+        )
+
+        st.dataframe(
+            module_risks
+        )
+
+        st.subheader(
+            "Complexity Heatmap"
+        )
+
+        st.dataframe(
+            complexity_heatmap
+        )
+
+
+        st.subheader(
+            "Security Vulnerability Detection"
+        )
+
+        
+
+        st.subheader(
+            "Refactoring Priority List"
+        )
+
+        st.dataframe(
+            refactoring_priority
+        )
+
         repository_findings = analyze_repository_static(
             repo_path,
             repo_files
         )
+
+        root_causes = analyze_root_causes(
+            repository_findings
+        )
+
+        st.subheader(
+            "Root Cause Analysis"
+        )
+
+        
         
         architecture_findings = analyze_repository_architecture(
             repo_path,
