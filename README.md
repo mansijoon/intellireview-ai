@@ -1,6 +1,8 @@
 # IntelliReview AI
 
 > **AI-Powered Engineering Intelligence Platform for Repository Analysis, Architecture Assessment, Security Review, and Automated Code Intelligence**
+>
+> > Developed with AI-assisted engineering using Google Gemini and OpenAI GPT-5.6.
 
 IntelliReview AI is an AI-powered **Engineering Intelligence Platform** that analyzes software repositories to help developers understand code quality, architecture, technical debt, maintainability, and security.
 
