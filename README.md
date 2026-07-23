@@ -307,7 +307,7 @@ The following screenshots showcase IntelliReview AI's user interface and reposit
 ## Architecture Analysis
 
 <p align="center">
-    <img src="assets/screenshots/architectr_analysis.png" width="95%">
+    <img src="assets/screenshots/architectur_analysis.png" width="95%">
 </p>
 
 > Repository architecture evaluation with architecture score and detected architectural issues.
