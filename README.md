@@ -30,13 +30,10 @@ Analyze source code, repositories, and pull requests using AI, static analysis, 
 
 ## 🎥 Demo
 
-See IntelliReview AI in action by clicking the preview below.
+See IntelliReview AI in action by clicking the link below.
 
-<p align="center">
-  <a href="assets/demo/demo.mp4">
-    <img src="assets/images/social_preview.png" alt="IntelliReview AI Demo" width="900">
-  </a>
-</p>
+https://youtu.be/g6rlvt38xbo
+
 
 ---
 
