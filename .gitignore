@@ -7,20 +7,44 @@ __pycache__/
 # Virtual environments
 venv/
 .venv/
+env/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # Streamlit
 .streamlit/
 
-# Runtime/generated files
+# IntelliReview runtime/cache
+.intellireview-cache/
+
+# Generated/runtime files
 uploads/
 temp_repo/
 reports/
 dependency_graph.html
 review_report.pdf
 sample_report.pdf
+
+# Generated reports / artifacts
+*.pdf
+*.html
+*.zip
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Test/cache artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
 
 # IDE
 .vscode/
@@ -32,16 +56,3 @@ Thumbs.db
 
 # Logs
 *.log
-
-# Build artifacts
-dist/
-build/
-*.egg-info/
-
-# Test cache
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Misc
-requirements_full.txt

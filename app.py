@@ -118,6 +118,7 @@ from analyzer.architecture_score import (
     calculate_architecture_score
 )
 
+
 from analyzer.pr_review import (
     review_pull_request
 )
@@ -493,8 +494,11 @@ if (
             repo_files
         )
         
+        total_modules = len(repo_files)
+
         architecture_score = calculate_architecture_score(
-            architecture_findings
+            architecture_findings,
+            total_modules
         )
 
         repository_summary = generate_repository_executive_summary(

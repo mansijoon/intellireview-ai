@@ -7,7 +7,7 @@ password = "admin123"
 
 aws = "AKIA1234567890123456"
 
-token = "ghp_abcdefghijklmnopqrstuvwxyz1234567890"
+token = "TEST_GITHUB_TOKEN"
 '''
 
 print(

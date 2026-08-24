@@ -1,0 +1,1 @@
+"""IntelliReview command-line interface."""

@@ -1,29 +1,30 @@
-def calculate_architecture_score(
-    findings
-):
+from collections import Counter
 
-    score = 100
 
-    penalties = {
+def calculate_architecture_score(findings, total_modules):
+    """
+    Calculate architecture score based on the proportion of architectural issues
+    instead of raw counts, making the score scale fairly for repositories of
+    different sizes.
+    """
 
-        "God Module": 15,
-        "Large Module": 5,
-        "Large Repository": 3
+    if total_modules <= 0:
+        return 100
+
+    weights = {
+        "God Module": 40,
+        "Large Module": 25,
+        "Large Repository": 10,
     }
 
-    for finding in findings:
+    counts = Counter(f["type"] for f in findings)
 
-        score -= penalties.get(
-            finding["type"],
-            0
-        )
+    penalty = 0.0
 
-    score = max(
-        0,
-        min(
-            100,
-            score
-        )
-    )
+    for finding_type, weight in weights.items():
+        ratio = counts.get(finding_type, 0) / total_modules
+        penalty += ratio * weight
 
-    return score
+    score = round(100 - penalty)
+
+    return max(0, min(100, score))

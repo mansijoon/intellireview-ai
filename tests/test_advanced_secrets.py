@@ -3,9 +3,9 @@ from analyzer.secret_detector import (
 )
 
 code = """
-openai_key = "sk-123456789012345678901234567890"
+openai_key = "TEST_OPENAI_KEY"
 
-gemini_key = "AIza12345678901234567890123456789012345"
+gemini_key = "TEST_GEMINI_KEY"
 
 discord = "DISCORD_BOT_TOKEN_PLACEHOLDER"
 
@@ -15,7 +15,7 @@ postgres = "postgresql://user:pass@localhost/db"
 
 mysql = "mysql://root:root@localhost/db"
 
-slack = "xoxb-123456-abcdef"
+slack = "TEST_SLACK_TOKEN"
 
 
 """

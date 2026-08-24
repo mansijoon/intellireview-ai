@@ -1,97 +1,40 @@
-import os
-import ast
+from __future__ import annotations
+
+from pathlib import Path
+
+from analyzer.architecture_repository_analyzer import (
+    ArchitectureRepositoryAnalyzer,
+)
+from analyzer.core import RepositoryLoader
 
 
 def analyze_repository_architecture(
     repo_path,
-    repo_files
+    repo_files,
 ):
+    """
+    Compatibility API for the legacy architecture analyzer.
+    """
 
-    findings = []
+    repository = RepositoryLoader().load(
+        repo_path,
+        repository_id="legacy-repository",
+        revision="legacy",
+    )
 
-    if len(repo_files) > 100:
+    allowed_files = set(repo_files)
 
-        findings.append(
-            {
-                "type": "Large Repository",
-                "severity": "Medium",
-                "message":
-                f"Repository contains {len(repo_files)} files."
-            }
-        )
+    repository.files = tuple(
+        source_file
+        for source_file in repository.files
+        if source_file.path in allowed_files
+    )
 
-    for file in repo_files:
+    result = ArchitectureRepositoryAnalyzer().analyze(
+        repository
+    )
 
-        path = os.path.join(
-            repo_path,
-            file
-        )
-
-        try:
-
-            with open(
-                path,
-                "r",
-                encoding="utf-8"
-            ) as f:
-
-                code = f.read()
-
-            line_count = len(
-                code.splitlines()
-            )
-
-            if line_count > 300:
-
-                findings.append(
-                    {
-                        "type": "Large Module",
-                        "severity": "Medium",
-                        "message":
-                        f"{file} has {line_count} lines."
-                    }
-                )
-
-            tree = ast.parse(
-                code
-            )
-
-            function_count = sum(
-                isinstance(
-                    node,
-                    ast.FunctionDef
-                )
-                for node in ast.walk(tree)
-            )
-
-            class_count = sum(
-                isinstance(
-                    node,
-                    ast.ClassDef
-                )
-                for node in ast.walk(tree)
-            )
-
-            if (
-                line_count > 500
-                or function_count > 20
-                or class_count > 10
-            ):
-
-                findings.append(
-                    {
-                        "type": "God Module",
-                        "severity": "High",
-                        "message":
-                        f"{file} has "
-                        f"{line_count} lines, "
-                        f"{function_count} functions, "
-                        f"{class_count} classes."
-                    }
-                )
-
-        except Exception:
-
-            pass
-
-    return findings
+    return result.artifacts.get(
+        "architecture_findings",
+        [],
+    )
