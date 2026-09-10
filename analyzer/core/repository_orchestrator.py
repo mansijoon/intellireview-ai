@@ -16,6 +16,7 @@ from analyzer.core.models import (
 from analyzer.core.repository_context import RepositoryContext
 from analyzer.core.cache import (
     AnalyzerInvalidator,
+    DependencyInvalidator,
     RepositoryAnalysisCache,
 )
 
@@ -193,9 +194,54 @@ class RepositoryAnalysisOrchestrator:
             )
 
             invalidated_analyzers = (
-                AnalyzerInvalidator()
+                AnalyzerInvalidator(self.registry)
                 .invalidated_analyzers(change_set)
             )
+
+            analysis_scope = set(
+                change_set.changed
+            )
+
+            previous_dependency_result = (
+                self.cache.get_latest("dependency")
+            )
+
+            previous_dependency_graph = None
+
+            if previous_dependency_result is not None:
+                previous_dependency_graph = (
+                    previous_dependency_result.artifacts.get(
+                        "dependency_graph"
+                    )
+                )
+
+            if previous_dependency_graph is not None:
+                affected_modules = (
+                    DependencyInvalidator()
+                    .affected_modules(
+                        previous_dependency_graph,
+                        change_set.changed,
+                    )
+                )
+
+                module_paths = {
+                    module.path
+                    for module in (
+                        previous_dependency_graph.modules.values()
+                    )
+                    if module.name in affected_modules
+                }
+
+                analysis_scope.update(module_paths)
+
+            repository.configuration[
+                "_intellireview_analysis_scope"
+            ] = frozenset(analysis_scope)
+
+        if self.cache is not None:
+            repository.configuration[
+                "_intellireview_analysis_cache"
+            ] = self.cache
 
         for analyzer in self.registry.create_analyzers():
             analyzer_id = analyzer.metadata.analyzer_id
@@ -210,8 +256,7 @@ class RepositoryAnalysisOrchestrator:
             )
 
             if not should_recompute:
-                cached_result = self.cache.get(
-                    repository,
+                cached_result = self.cache.get_latest(
                     analyzer_id,
                 )
 

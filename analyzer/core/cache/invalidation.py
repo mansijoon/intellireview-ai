@@ -98,14 +98,42 @@ class AnalyzerInvalidator:
         }
     )
 
+    def __init__(self, registry=None):
+        self.registry = registry
+
     def invalidated_analyzers(
         self,
         change_set: RepositoryChangeSet,
+        *,
+        changed_modules: Iterable[str] = (),
     ) -> frozenset[str]:
         if change_set.is_empty:
             return frozenset()
 
-        return (
-            self.GRAPH_ANALYZERS
-            | self.STATIC_ANALYZERS
-        )
+        if self.registry is None:
+            return frozenset()
+
+        metadata = {
+            analyzer.metadata.analyzer_id: analyzer.metadata
+            for analyzer in self.registry.create_analyzers()
+        }
+
+        invalidated = {
+            analyzer_id
+            for analyzer_id, item in metadata.items()
+            if item.source_sensitive
+        }
+
+        changed = True
+        while changed:
+            changed = False
+
+            for analyzer_id, item in metadata.items():
+                if analyzer_id in invalidated:
+                    continue
+
+                if item.depends_on & invalidated:
+                    invalidated.add(analyzer_id)
+                    changed = True
+
+        return frozenset(invalidated)

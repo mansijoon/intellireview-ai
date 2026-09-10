@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "intellireview"
+version = "2.0.0"
+description = "Repository-scale IntelliReview analysis"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas==3.0.3",
+    "protobuf==7.35.1",
+    "python-dotenv==1.2.2",
+    "pyvis==0.3.2",
+    "reportlab==4.5.1",
+    "requests==2.34.2",
+    "google-genai==2.20.0",
+    "GitPython==3.1.50",
+    "numpy==2.4.6",
+    "streamlit==1.58.0",
+]
+
+[project.scripts]
+intellireview = "intellireview_cli.__main__:main"
+
+[tool.setuptools]
+packages = [
+    "analyzer",
+    "analyzer.ai",
+    "analyzer.architecture",
+    "analyzer.baseline",
+    "analyzer.call",
+    "analyzer.complexity",
+    "analyzer.core",
+    "analyzer.core.cache",
+    "analyzer.core.engine",
+    "analyzer.core.models",
+    "analyzer.core.rules",
+    "analyzer.core.rules.builtin",
+    "analyzer.dead_code",
+    "analyzer.dependency",
+    "analyzer.duplication",
+    "analyzer.impact",
+    "analyzer.knowledge",
+    "analyzer.maintainability",
+    "analyzer.performance",
+    "analyzer.reliability",
+    "analyzer.risk",
+    "analyzer.security",
+    "analyzer.security.dependency",
+    "analyzer.security.sbom",
+    "analyzer.static",
+    "analyzer.symbol",
+    "analyzer.taint",
+    "intellireview_cli",
+]

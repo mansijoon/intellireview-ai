@@ -3,10 +3,7 @@ from __future__ import annotations
 from analyzer.core.rules import RuleRegistry
 from analyzer.core.rules.builtin import (
     ASTRule,
-    DeadFunctionRule,
     DuplicateFunctionRule,
-    LegacyUnusedImportRule,
-    LegacyUnusedVariableRule,
     SecretDetectionRule,
     DangerousEvalExecRule,
     ShellCommandExecutionRule,
@@ -28,11 +25,7 @@ def create_default_registry() -> RuleRegistry:
     registry.register(UnusedImportRule)
     registry.register(UnusedVariableRule)
 
-    registry.register(LegacyUnusedImportRule)
-    registry.register(LegacyUnusedVariableRule)
-
     registry.register(DuplicateFunctionRule)
-    registry.register(DeadFunctionRule)
     registry.register(SecretDetectionRule)
     registry.register(DangerousEvalExecRule)
     registry.register(ShellCommandExecutionRule)

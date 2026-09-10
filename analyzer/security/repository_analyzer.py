@@ -30,6 +30,8 @@ class SecurityRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="security",
+            depends_on=frozenset({"static"}),
+        source_sensitive=False,
         name="Security Analyzer",
         description=(
             "Runs repository security rules and produces "

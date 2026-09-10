@@ -33,6 +33,8 @@ class RepositoryRiskRepositoryAnalyzer(
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="repository_risk",
+            depends_on=frozenset({"dependency", "symbol", "call", "architecture", "change_impact"}),
+        source_sensitive=False,
         name="Repository Risk Analyzer",
         description=(
             "Calculates repository and module risk from "

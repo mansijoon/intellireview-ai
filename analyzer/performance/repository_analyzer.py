@@ -12,6 +12,7 @@ from analyzer.core.models import (
     RepositoryAnalysisStatus,
 )
 from analyzer.core.repository_context import RepositoryContext
+from analyzer.core.cache import RepositoryAnalysisCache
 
 from analyzer.performance.models import (
     PerformanceFileReport,
@@ -27,6 +28,8 @@ class PerformanceRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="performance",
+            depends_on=frozenset(),
+        source_sensitive=True,
         name="Performance Analyzer",
         description=(
             "Detects statically identifiable performance risks "
@@ -47,26 +50,49 @@ class PerformanceRepositoryAnalyzer(RepositoryAnalyzer):
             )
 
             file_reports: list[PerformanceFileReport] = []
+            cache = repository.configuration.get(
+                "_intellireview_analysis_cache"
+            )
+            scope = repository.analysis_scope
 
             for context in repository.iter_contexts():
-                findings = []
-
                 if context.language.lower() != "python":
                     continue
 
-                for rule in rules:
-                    findings.extend(
-                        rule.analyze(context)
+                cached = None
+                if cache is not None:
+                    cached = cache.get_file_result(
+                        "performance",
+                        context.file_path,
+                        context.content_hash,
                     )
 
-                if findings:
-                    file_reports.append(
-                        PerformanceFileReport(
-                            file_path=context.file_path,
-                            finding_count=len(findings),
-                            findings=tuple(findings),
-                        )
+                if isinstance(cached, PerformanceFileReport):
+                    file_report = cached
+                else:
+                    if scope is not None and context.file_path not in scope:
+                        continue
+
+                    findings = []
+                    for rule in rules:
+                        findings.extend(rule.analyze(context))
+
+                    file_report = PerformanceFileReport(
+                        file_path=context.file_path,
+                        finding_count=len(findings),
+                        findings=tuple(findings),
                     )
+
+                    if cache is not None:
+                        cache.set_file_result(
+                            "performance",
+                            context.file_path,
+                            context.content_hash,
+                            file_report,
+                        )
+
+                if file_report.finding_count:
+                    file_reports.append(file_report)
 
             affected_file_count = len(file_reports)
             finding_count = sum(

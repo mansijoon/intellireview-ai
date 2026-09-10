@@ -55,49 +55,87 @@ def extract_added_lines(
     return results
 
 
+def _finding_line(
+    finding: dict,
+    patch: str,
+) -> int:
+    """
+    Best-effort mapping of a deterministic finding back to a
+    changed PR line.
+
+    Findings without an explicit source line are mapped to the
+    first added source line.
+    """
+
+    explicit_line = finding.get("line")
+
+    if isinstance(explicit_line, int):
+        return explicit_line
+
+    added_lines = extract_added_lines(patch)
+
+    if added_lines:
+        return added_lines[0][0]
+
+    return 1
+
+
 def build_pr_findings(
     files: list[dict],
 ) -> tuple[PRFinding, ...]:
-    findings: list[PRFinding] = []
+    """
+    Run the canonical IntelliReview PR engine against changed files.
+    """
 
-    for file in files:
-        path = file.get("filename", "")
-        patch = file.get("patch")
+    from analyzer.pr_review import review_pull_request_files
 
-        if not path or not patch:
+    findings = review_pull_request_files(files)
+
+    result: list[PRFinding] = []
+
+    for finding in findings:
+        path = finding.get("file_path", "")
+
+        if not path:
             continue
 
-        for line_number, content in extract_added_lines(
-            patch
-        ):
-            lowered = content.lower()
+        source_file = next(
+            (
+                file
+                for file in files
+                if file.get("filename") == path
+            ),
+            None,
+        )
 
-            if "password =" in lowered:
-                findings.append(
-                    PRFinding(
-                        path=path,
-                        line=line_number,
-                        message=(
-                            "Hardcoded credential detected. "
-                            "Use secure configuration instead."
-                        ),
-                        severity="High",
-                    )
-                )
+        if source_file is None:
+            continue
 
-            if "print(" in lowered:
-                findings.append(
-                    PRFinding(
-                        path=path,
-                        line=line_number,
-                        message=(
-                            "Debug output detected in changed code."
-                        ),
-                        severity="Low",
-                    )
-                )
+        line = _finding_line(
+            finding,
+            source_file.get("patch", ""),
+        )
 
-    return tuple(findings)
+        message = finding.get(
+            "message",
+            finding.get("type", "IntelliReview finding"),
+        )
+
+        severity = finding.get(
+            "severity",
+            "Medium",
+        )
+
+        result.append(
+            PRFinding(
+                path=path,
+                line=line,
+                message=message,
+                severity=severity,
+            )
+        )
+
+    return tuple(result)
 
 
 def publish_inline_findings(
@@ -128,6 +166,7 @@ def publish_inline_findings(
 
     return published
 
+
 def publish_pr_review(
     client: GitHubClient,
     owner: str,
@@ -149,6 +188,7 @@ def publish_pr_review(
         commit_id,
         findings,
     )
+
 
 def build_pr_summary(
     findings: tuple[PRFinding, ...],
@@ -178,8 +218,11 @@ def build_pr_summary(
         "Low",
     ):
         count = counts.get(severity, 0)
+
         if count:
-            lines.append(f"- **{severity}:** {count}")
+            lines.append(
+                f"- **{severity}:** {count}"
+            )
 
     lines.extend(
         (
@@ -197,6 +240,7 @@ def build_pr_summary(
 
     return "\n".join(lines)
 
+
 def review_and_publish_pr(
     client: GitHubClient,
     owner: str,
@@ -205,6 +249,14 @@ def review_and_publish_pr(
     commit_id: str,
     files: list[dict],
 ) -> tuple[int, str]:
+    """
+    Canonical end-to-end GitHub PR review path.
+
+    Changed GitHub files are analyzed by IntelliReview's
+    deterministic PR engine, converted into GitHub findings,
+    published inline, and summarized.
+    """
+
     findings = build_pr_findings(files)
 
     summary = build_pr_summary(findings)
@@ -220,3 +272,79 @@ def review_and_publish_pr(
 
     return published, summary
 
+
+def review_github_pr_files(
+    files: list[dict],
+) -> tuple[list[dict], str]:
+    """
+    Return raw IntelliReview findings and a PR summary.
+    """
+
+    from analyzer.pr_review import review_pull_request_files
+
+    findings = review_pull_request_files(files)
+
+    if not findings:
+        return [], "## IntelliReview\n\nNo findings detected."
+
+    counts: dict[str, int] = {}
+
+    for finding in findings:
+        severity = finding.get(
+            "severity",
+            "Unknown",
+        )
+
+        counts[severity] = counts.get(
+            severity,
+            0,
+        ) + 1
+
+    lines = [
+        "## IntelliReview",
+        "",
+        f"**Findings:** {len(findings)}",
+        "",
+        "### Severity Summary",
+    ]
+
+    for severity in (
+        "Critical",
+        "High",
+        "Medium",
+        "Low",
+    ):
+        count = counts.get(severity, 0)
+
+        if count:
+            lines.append(
+                f"- **{severity}:** {count}"
+            )
+
+    lines.extend(
+        (
+            "",
+            "### Findings",
+        )
+    )
+
+    for finding in findings:
+        path = finding.get(
+            "file_path",
+            "<unknown>",
+        )
+
+        message = finding.get(
+            "message",
+            finding.get(
+                "type",
+                "Finding",
+            ),
+        )
+
+        lines.append(
+            f"- **{finding.get('severity', 'Unknown')}** "
+            f"`{path}` — {message}"
+        )
+
+    return findings, "\n".join(lines)

@@ -28,6 +28,8 @@ class TaintRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="taint",
+            depends_on=frozenset({"dependency", "symbol", "call"}),
+        source_sensitive=True,
         name="Taint Analyzer",
         description=(
             "Tracks statically identifiable tainted data "

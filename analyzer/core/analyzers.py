@@ -14,6 +14,8 @@ class RepositoryAnalyzerMetadata:
     analyzer_id: str
     name: str
     description: str
+    depends_on: frozenset[str] = frozenset()
+    source_sensitive: bool = True
 
     def __post_init__(self) -> None:
         if not self.analyzer_id.strip():

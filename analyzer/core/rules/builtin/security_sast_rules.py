@@ -3,7 +3,10 @@ from __future__ import annotations
 import ast
 
 from analyzer.core.context import AnalysisContext
-from analyzer.core.models import Finding
+from analyzer.core.models import (
+    Evidence,
+    Finding,
+)
 from analyzer.core.rules import AnalysisRule, RuleMetadata
 
 
@@ -55,6 +58,22 @@ def _finding(
     confidence: float,
     remediation: str,
 ) -> Finding:
+    source_segment = ast.get_source_segment(
+        context.source,
+        node,
+    )
+
+    evidence = ()
+
+    if source_segment:
+        evidence = (
+            Evidence(
+                message="Detected source expression.",
+                location=_location(context, node),
+                code_snippet=source_segment,
+            ),
+        )
+
     return Finding(
         rule_id=rule_id,
         title=title,
@@ -64,6 +83,7 @@ def _finding(
         location=_location(context, node),
         analyzer="security",
         remediation=remediation,
+        evidence=evidence,
     )
 
 

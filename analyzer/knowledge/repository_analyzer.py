@@ -16,6 +16,9 @@ from analyzer.core.repository_context import RepositoryContext
 from analyzer.knowledge.builder import (
     build_repository_knowledge,
 )
+from analyzer.knowledge.semantic_index import (
+    SemanticIndex,
+)
 
 
 class KnowledgeRepositoryAnalyzer(RepositoryAnalyzer):
@@ -23,6 +26,8 @@ class KnowledgeRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="knowledge",
+            depends_on=frozenset({"dependency", "symbol", "call"}),
+        source_sensitive=False,
         name="Repository Knowledge Analyzer",
         description=(
             "Builds the canonical repository knowledge model "
@@ -41,6 +46,15 @@ class KnowledgeRepositoryAnalyzer(RepositoryAnalyzer):
                 repository
             )
 
+            semantic_index = SemanticIndex()
+
+            if not semantic_index.ensure(
+                knowledge
+            ):
+                raise RuntimeError(
+                    "Unable to build semantic repository index"
+                )
+
             result = RepositoryAnalysisResult(
                 analyzer_id=self.metadata.analyzer_id,
                 status=RepositoryAnalysisStatus.SUCCESS,
@@ -48,6 +62,7 @@ class KnowledgeRepositoryAnalyzer(RepositoryAnalyzer):
                 completed_at=datetime.now(timezone.utc),
                 artifacts={
                     "knowledge_model": knowledge,
+                    "semantic_index": semantic_index,
                     "file_count": len(
                         knowledge.files
                     ),
@@ -65,6 +80,9 @@ class KnowledgeRepositoryAnalyzer(RepositoryAnalyzer):
                     "dependency_count": len(
                         knowledge.dependencies
                     ),
+                    "semantic_document_count": len(
+                        semantic_index.documents
+                    ),
                 },
                 diagnostics=(),
             )
@@ -79,12 +97,19 @@ class KnowledgeRepositoryAnalyzer(RepositoryAnalyzer):
                 knowledge,
             )
 
+            repository.set_artifact(
+                "semantic_index",
+                semantic_index,
+            )
+
             return result
 
         except Exception as exc:
             diagnostic = AnalysisDiagnostic(
-                code="KNOWLEDGE_ANALYSIS_ERROR",
-                message=str(exc),
+                message=(
+                    "Knowledge analyzer execution failed: "
+                    f"{type(exc).__name__}: {exc}"
+                ),
                 severity="error",
             )
 

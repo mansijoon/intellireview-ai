@@ -34,6 +34,8 @@ class ChangeImpactRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="change_impact",
+            depends_on=frozenset({"dependency", "symbol", "call"}),
+        source_sensitive=False,
         name="Change Impact Analyzer",
         description=(
             "Determines modules, symbols, and calls affected "

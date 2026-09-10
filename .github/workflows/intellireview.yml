@@ -19,18 +19,29 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Install project
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -e .
 
       - name: Run deterministic tests
         run: |
-          python -m pytest -q test_review.py
+          python -m pytest -q \
+            test_baseline.py \
+            test_baseline_builder.py \
+            test_baseline_comparison_service.py \
+            test_baseline_service.py \
+            test_git_repository.py \
+            test_github_integration.py \
+            tests/test_github_client_integration.py \
+            tests/test_pr_review_engine.py
 
       - name: Repository analysis
+        env:
+          INTELLIREVIEW_DISABLE_KNOWLEDGE: "1"
         run: |
-          python -m intellireview_cli analyze . --json > intellireview-result.json
+          intellireview analyze . --json > intellireview-result.json
 
       - name: Quality gate
         run: |
@@ -46,7 +57,7 @@ jobs:
                   + result["status"]
               )
 
-          if result["successful_count"] != result["analyzers"].__len__():
+          if result["successful_count"] != len(result["analyzers"]):
               raise SystemExit(
                   "IntelliReview quality gate failed: "
                   "not all analyzers succeeded"

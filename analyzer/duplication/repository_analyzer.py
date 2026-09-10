@@ -25,6 +25,8 @@ class DuplicationRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="duplication",
+            depends_on=frozenset({"static"}),
+        source_sensitive=False,
         name="Duplication Analyzer",
         description=(
             "Aggregates canonical duplicate-code findings "
@@ -109,7 +111,6 @@ class DuplicationRepositoryAnalyzer(RepositoryAnalyzer):
 
             artifacts = {
                 "duplication_report": report,
-                "findings": findings,
                 "finding_count": len(findings),
                 "affected_file_count": (
                     affected_file_count

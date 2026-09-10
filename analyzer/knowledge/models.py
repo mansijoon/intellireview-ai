@@ -62,6 +62,12 @@ class RepositoryKnowledgeModel:
     dependencies: tuple[KnowledgeDependency, ...] = ()
     findings: tuple[KnowledgeFinding, ...] = ()
 
+    # Exact source snapshot used to build this knowledge model.
+    # This preserves committed-revision provenance for RAG.
+    source_contents: dict[str, str] = field(
+        default_factory=dict
+    )
+
     symbol_by_id: dict[str, KnowledgeSymbol] = field(
         default_factory=dict
     )
@@ -87,3 +93,17 @@ class RepositoryKnowledgeModel:
     metadata: dict[str, Any] = field(
         default_factory=dict
     )
+
+
+@dataclass(frozen=True, slots=True)
+class KnowledgeDocument:
+    """Retrievable semantic unit derived from repository knowledge."""
+
+    document_id: str
+    kind: str
+    file_path: str
+    name: str
+    content: str
+    source_id: str | None = None
+    line_start: int | None = None
+    line_end: int | None = None

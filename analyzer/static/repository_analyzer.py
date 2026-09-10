@@ -21,6 +21,8 @@ class StaticRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="static",
+            depends_on=frozenset(),
+        source_sensitive=True,
         name="Static Analyzer",
         description=(
             "Runs the canonical deterministic rule engine "
@@ -36,7 +38,16 @@ class StaticRepositoryAnalyzer(RepositoryAnalyzer):
 
         try:
             registry = create_default_registry()
-            rules = registry.create_rules()
+
+            rules = [
+                rule
+                for rule in registry.create_rules()
+                if rule.metadata.category != "security"
+            ]
+
+            cache = repository.configuration.get(
+                "_intellireview_analysis_cache"
+            )
 
             findings: list[Finding] = []
             rule_counts: dict[str, int] = {}
@@ -48,14 +59,56 @@ class StaticRepositoryAnalyzer(RepositoryAnalyzer):
 
             analyzed_file_count = 0
 
-            for context in repository.iter_contexts():
-                if context.language.lower() not in supported_languages:
+            scope = repository.analysis_scope
+
+            for source_file in repository.files:
+                if source_file.language.lower() not in supported_languages:
                     continue
 
                 analyzed_file_count += 1
 
+                is_in_scope = (
+                    scope is None
+                    or source_file.path in scope
+                )
+
+                context = None
+
+                if is_in_scope:
+                    context = repository.get_context(
+                        source_file.path
+                    )
+
                 for rule in rules:
-                    rule_findings = rule.analyze(context)
+                    cached = None
+
+                    if cache is not None:
+                        cached = cache.get_file_result(
+                            self.metadata.analyzer_id,
+                            source_file.path,
+                            source_file.content_hash,
+                            variant=rule.metadata.rule_id,
+                        )
+
+                    if isinstance(cached, tuple):
+                        rule_findings = [
+                            finding
+                            for finding in cached
+                            if isinstance(finding, Finding)
+                        ]
+                    elif not is_in_scope:
+                        rule_findings = []
+                    else:
+                        rule_findings = rule.analyze(context)
+
+                        if cache is not None:
+                            cache.set_file_result(
+                                self.metadata.analyzer_id,
+                                source_file.path,
+                                source_file.content_hash,
+                                tuple(rule_findings),
+                                variant=rule.metadata.rule_id,
+                            )
 
                     findings.extend(rule_findings)
 

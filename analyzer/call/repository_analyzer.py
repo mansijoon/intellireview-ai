@@ -26,6 +26,8 @@ class CallRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="call",
+            depends_on=frozenset({"dependency", "symbol"}),
+        source_sensitive=False,
         name="Call Analyzer",
         description=(
             "Builds and resolves repository-wide call "

@@ -19,7 +19,7 @@ def analyze_repository_architecture(
     repository = RepositoryLoader().load(
         repo_path,
         repository_id="legacy-repository",
-        revision="legacy",
+        revision="working-tree",
     )
 
     allowed_files = set(repo_files)

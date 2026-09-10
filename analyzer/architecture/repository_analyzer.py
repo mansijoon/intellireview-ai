@@ -23,6 +23,8 @@ class ArchitectureValidationRepositoryAnalyzer(
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="architecture_validation",
+        depends_on=frozenset({"dependency", "architecture"}),
+        source_sensitive=False,
         name="Architecture Validation Analyzer",
         description=(
             "Validates repository architecture using "

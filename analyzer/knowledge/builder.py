@@ -355,6 +355,9 @@ def build_repository_knowledge(
         calls_by_callee=calls_by_callee,
         dependencies_by_source=dependencies_by_source,
         dependencies_by_target=dependencies_by_target,
+        source_contents=dict(
+            repository.source_contents
+        ),
         metadata={
             "file_count": len(files),
             "symbol_count": len(symbols),

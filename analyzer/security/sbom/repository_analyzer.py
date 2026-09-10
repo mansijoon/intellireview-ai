@@ -27,6 +27,8 @@ class SBOMRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="sbom",
+            depends_on=frozenset({"dependency"}),
+        source_sensitive=False,
         name="SBOM and License Analyzer",
         description=(
             "Builds a repository software bill of materials "

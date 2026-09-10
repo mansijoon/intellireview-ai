@@ -35,6 +35,8 @@ class MaintainabilityRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="maintainability",
+            depends_on=frozenset({"static", "complexity"}),
+        source_sensitive=False,
         name="Maintainability Analyzer",
         description=(
             "Computes repository-wide maintainability scores "

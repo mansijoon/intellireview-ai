@@ -2,21 +2,27 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from analyzer.call.models import (
+    CallGraph,
+    CallResolutionStatus,
+)
 from analyzer.core.analyzers import (
     RepositoryAnalyzer,
     RepositoryAnalyzerMetadata,
 )
 from analyzer.core.models import (
     AnalysisDiagnostic,
+    Finding,
     RepositoryAnalysisResult,
     RepositoryAnalysisStatus,
+    Severity,
 )
 from analyzer.core.repository_context import RepositoryContext
-
 from analyzer.dead_code.models import (
     DeadCodeReport,
     FileDeadCode,
 )
+from analyzer.symbol.models import SymbolGraph
 
 
 class DeadCodeRepositoryAnalyzer(RepositoryAnalyzer):
@@ -24,10 +30,12 @@ class DeadCodeRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="dead_code",
+            depends_on=frozenset({"symbol", "call"}),
+        source_sensitive=False,
         name="Dead Code Analyzer",
         description=(
-            "Aggregates canonical dead-function findings "
-            "into repository-level dead-code metrics."
+            "Detects functions and methods with no "
+            "statically resolved incoming calls."
         ),
     )
 
@@ -38,23 +46,87 @@ class DeadCodeRepositoryAnalyzer(RepositoryAnalyzer):
         started_at = datetime.now(timezone.utc)
 
         try:
-            static_result = repository.get_artifact(
-                "static_analysis"
+            symbol_graph = repository.get_artifact(
+                "symbol_graph"
             )
 
-            if static_result is None:
+            if symbol_graph is None:
                 raise RuntimeError(
-                    "Static analysis result is required "
-                    "before dead-code analysis."
+                    "Symbol graph is required before "
+                    "dead-code analysis."
                 )
 
-            findings = tuple(
-                finding
-                for finding in static_result.artifacts.get(
-                    "findings",
-                    (),
+            call_graph = repository.get_artifact(
+                "call_graph"
+            )
+
+            if call_graph is None:
+                raise RuntimeError(
+                    "Call graph is required before "
+                    "dead-code analysis."
                 )
-                if finding.rule_id == "PY-DEAD-001"
+
+            if not isinstance(symbol_graph, SymbolGraph):
+                raise TypeError(
+                    "symbol_graph artifact has an unexpected type."
+                )
+
+            if not isinstance(call_graph, CallGraph):
+                raise TypeError(
+                    "call_graph artifact has an unexpected type."
+                )
+
+            findings: list[Finding] = []
+
+            for symbol in symbol_graph.symbols.values():
+                if symbol.kind not in {
+                    "function",
+                    "method",
+                }:
+                    continue
+
+                if symbol.name == "main":
+                    continue
+
+                incoming_calls = call_graph.calls_to(
+                    symbol.symbol_id
+                )
+
+                resolved_incoming_calls = tuple(
+                    call
+                    for call in incoming_calls
+                    if (
+                        call.resolution_status
+                        == CallResolutionStatus.RESOLVED
+                    )
+                )
+
+                if resolved_incoming_calls:
+                    continue
+
+                findings.append(
+                    Finding(
+                        rule_id="PY-DEAD-001",
+                        title="Dead Function",
+                        description=(
+                            f"{symbol.name} defined but "
+                            "has no statically resolved "
+                            "incoming calls."
+                        ),
+                        severity=Severity.MEDIUM,
+                        location=symbol.location,
+                        analyzer="dead_code",
+                        confidence=1.0,
+                    )
+                )
+
+            findings.sort(
+                key=lambda finding: (
+                    finding.location.file_path,
+                    finding.location.line_start,
+                    finding.location.line_end,
+                    finding.description,
+                )
             )
 
             by_file: dict[str, int] = {}
@@ -97,39 +169,31 @@ class DeadCodeRepositoryAnalyzer(RepositoryAnalyzer):
 
             report = DeadCodeReport(
                 finding_count=len(findings),
-                affected_file_count=(
-                    affected_file_count
-                ),
+                affected_file_count=affected_file_count,
                 file_count=file_count,
-                dead_code_percentage=(
-                    dead_code_percentage
-                ),
+                dead_code_percentage=dead_code_percentage,
                 files=files,
             )
-
-            artifacts = {
-                "dead_code_report": report,
-                "findings": findings,
-                "finding_count": len(findings),
-                "affected_file_count": (
-                    affected_file_count
-                ),
-                "dead_code_percentage": (
-                    dead_code_percentage
-                ),
-                "files": files,
-            }
 
             completed_at = datetime.now(timezone.utc)
 
             result = RepositoryAnalysisResult(
-                analyzer_id="dead_code",
-                status=(
-                    RepositoryAnalysisStatus.SUCCESS
-                ),
+                analyzer_id=self.metadata.analyzer_id,
+                status=RepositoryAnalysisStatus.SUCCESS,
                 started_at=started_at,
                 completed_at=completed_at,
-                artifacts=artifacts,
+                artifacts={
+                    "dead_code_report": report,
+                    "findings": tuple(findings),
+                    "finding_count": len(findings),
+                    "affected_file_count": (
+                        affected_file_count
+                    ),
+                    "dead_code_percentage": (
+                        dead_code_percentage
+                    ),
+                    "files": files,
+                },
                 diagnostics=(
                     AnalysisDiagnostic(
                         message=(
@@ -141,21 +205,12 @@ class DeadCodeRepositoryAnalyzer(RepositoryAnalyzer):
                 ),
             )
 
-            repository.set_artifact(
-                "dead_code_analysis",
-                result,
-            )
-
-            return result
-
         except Exception as exc:
             completed_at = datetime.now(timezone.utc)
 
             result = RepositoryAnalysisResult(
-                analyzer_id="dead_code",
-                status=(
-                    RepositoryAnalysisStatus.FAILED
-                ),
+                analyzer_id=self.metadata.analyzer_id,
+                status=RepositoryAnalysisStatus.FAILED,
                 started_at=started_at,
                 completed_at=completed_at,
                 diagnostics=(
@@ -169,9 +224,9 @@ class DeadCodeRepositoryAnalyzer(RepositoryAnalyzer):
                 ),
             )
 
-            repository.set_artifact(
-                "dead_code_analysis",
-                result,
-            )
+        repository.set_artifact(
+            "dead_code_analysis",
+            result,
+        )
 
-            return result
+        return result

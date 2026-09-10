@@ -827,7 +827,6 @@ IntelliReview-AI/
 │
 ├── app.py                             # Streamlit application
 ├── requirements.txt                   # Core dependencies
-├── requirements_full.txt              # Extended dependencies
 └── README.md
 ```
 

@@ -21,6 +21,8 @@ class ArchitectureRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="architecture",
+            depends_on=frozenset({"dependency"}),
+        source_sensitive=True,
         name="Architecture Analyzer",
         description=(
             "Analyzes repository and module structure, "

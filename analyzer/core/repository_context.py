@@ -17,8 +17,39 @@ class RepositoryContext:
     root_path: str
 
     files: tuple[SourceFile, ...] = field(default_factory=tuple)
+    source_contents: dict[str, str] = field(default_factory=dict)
 
     configuration: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def analysis_scope(self) -> frozenset[str] | None:
+        """
+        Return the repository files that require file-local analysis.
+
+        None means the full repository is in scope. An explicit set
+        allows incremental analyzers to process only changed/affected
+        files while preserving the complete RepositoryContext.
+        """
+        value = self.configuration.get(
+            "_intellireview_analysis_scope"
+        )
+
+        if value is None:
+            return None
+
+        return frozenset(value)
+
+    def files_in_analysis_scope(self):
+        """Yield repository files selected for incremental analysis."""
+        scope = self.analysis_scope
+
+        if scope is None:
+            yield from self.files
+            return
+
+        for source_file in self.files:
+            if source_file.path in scope:
+                yield source_file
 
     _contexts: dict[str, AnalysisContext] = field(
         default_factory=dict,
@@ -66,19 +97,22 @@ class RepositoryContext:
                 f"Unknown repository file: {relative_path}"
             )
 
-        absolute_path = (
-            Path(self.root_path) / relative_path
-        )
+        source = self.source_contents.get(relative_path)
 
-        try:
-            source = absolute_path.read_text(
-                encoding="utf-8"
+        if source is None:
+            absolute_path = (
+                Path(self.root_path) / relative_path
             )
-        except (OSError, UnicodeDecodeError) as exc:
-            raise RuntimeError(
-                f"Unable to read repository file: "
-                f"{relative_path}"
-            ) from exc
+
+            try:
+                source = absolute_path.read_text(
+                    encoding="utf-8"
+                )
+            except (OSError, UnicodeDecodeError) as exc:
+                raise RuntimeError(
+                    f"Unable to read repository file: "
+                    f"{relative_path}"
+                ) from exc
 
         context = AnalysisContext(
             file_path=relative_path,

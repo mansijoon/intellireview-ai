@@ -1,15 +1,17 @@
-from analyzer.review_engine import review_code
+import analyzer.review_engine as engine
 
-sample_code = """
+
+def test_review_code_mock(monkeypatch):
+    monkeypatch.setattr(engine, "USE_MOCK", True)
+
+    result = engine.review_code(
+        """
 password = "admin123"
 
-for i in range(100):
-    for j in range(100):
+for i in range(10):
+    for j in range(10):
         print(i, j)
 """
+    )
 
-result = review_code(
-    sample_code
-)
-
-print(result)
+    assert result is not None

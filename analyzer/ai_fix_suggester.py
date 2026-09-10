@@ -1,27 +1,37 @@
-from dotenv import load_dotenv
-import google.generativeai as genai
+from __future__ import annotations
+
 import os
+
+from dotenv import load_dotenv
+from google import genai
+from google.genai import errors
+
 
 load_dotenv()
 
 USE_MOCK = False
 
-genai.configure(
+client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
-model = genai.GenerativeModel(
-    "gemini-2.5-flash"
-)
+
+class _GeminiModel:
+    def generate_content(self, prompt):
+        return client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+
+
+model = _GeminiModel()
 
 
 def generate_ai_fix_suggestions(
     code,
-    findings
+    findings,
 ):
-
     if USE_MOCK:
-
         return """
 ## AI Fix Suggestions
 
@@ -66,8 +76,15 @@ Provide:
 Format the response in Markdown.
 """
 
-    response = model.generate_content(
-        prompt
-    )
-
-    return response.text
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except errors.ClientError as exc:
+        if getattr(exc, "code", None) == 429:
+            return (
+                "## AI Fix Suggestions\n\n"
+                "AI fix suggestions are temporarily unavailable because "
+                "the Gemini API quota has been exhausted.\n\n"
+                "Deterministic IntelliReview analysis is still available."
+            )
+        raise

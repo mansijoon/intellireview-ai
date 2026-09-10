@@ -23,6 +23,8 @@ class SymbolRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="symbol",
+            depends_on=frozenset({"dependency"}),
+        source_sensitive=True,
         name="Symbol Analyzer",
         description=(
             "Builds a repository-wide symbol graph from "

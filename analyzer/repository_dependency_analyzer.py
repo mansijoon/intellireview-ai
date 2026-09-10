@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from analyzer.core import RepositoryContext
+from analyzer.core.repository_loader import RepositoryLoader
 from analyzer.dependency import DependencyRepositoryAnalyzer
 from analyzer.dependency.visualizer import (
     build_dependency_visualization,
@@ -25,7 +26,7 @@ def _get_or_run_dependency_analysis(
 
 
 def analyze_repository_dependencies(
-    repository: RepositoryContext,
+    repository: RepositoryContext | str,
 ):
     """
     Compatibility API for repository dependency analysis.
@@ -34,15 +35,38 @@ def analyze_repository_dependencies(
     DependencyRepositoryAnalyzer.
     """
 
+    if isinstance(repository, str):
+        repository = RepositoryLoader().load(repository)
+
     result = _get_or_run_dependency_analysis(
         repository
     )
 
+    graph = result.artifacts.get(
+        "dependency_graph"
+    )
+
+    visualization = (
+        build_dependency_visualization(graph)
+        if graph is not None
+        else None
+    )
+
     return {
         "result": result,
-        "graph": result.artifacts.get(
-            "dependency_graph"
+        "total_modules": (
+            len(graph.modules) if graph is not None else 0
         ),
+        "internal_dependencies": result.artifacts.get(
+            "internal_dependency_count",
+            0,
+        ),
+        "external_dependencies": result.artifacts.get(
+            "external_dependency_count",
+            0,
+        ),
+        "graph": graph,
+        "visualization": visualization,
         "cycles": result.artifacts.get(
             "dependency_cycles",
             [],
@@ -60,6 +84,14 @@ def analyze_repository_dependencies(
             [],
         ),
         "most_dependent": result.artifacts.get(
+            "most_dependent_modules",
+            [],
+        ),
+        "most_depended_modules": result.artifacts.get(
+            "most_depended_modules",
+            [],
+        ),
+        "most_dependent_modules": result.artifacts.get(
             "most_dependent_modules",
             [],
         ),

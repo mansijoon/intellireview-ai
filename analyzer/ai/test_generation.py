@@ -11,6 +11,45 @@ class GeneratedTest:
     target: str
 
 
+def _find_target_function(
+    source: str,
+    line_start: int,
+) -> str:
+    tree = ast.parse(source)
+
+    candidates = []
+
+    for node in ast.walk(tree):
+        if not isinstance(
+            node,
+            (ast.FunctionDef, ast.AsyncFunctionDef),
+        ):
+            continue
+
+        end_lineno = (
+            node.end_lineno
+            if node.end_lineno is not None
+            else node.lineno
+        )
+
+        if node.lineno <= line_start <= end_lineno:
+            candidates.append(node)
+
+    if not candidates:
+        raise ValueError(
+            "No enclosing function found for finding location."
+        )
+
+    candidates.sort(
+        key=lambda node: (
+            node.end_lineno - node.lineno,
+            node.lineno,
+        )
+    )
+
+    return candidates[0].name
+
+
 def generate_test(
     *,
     file_path: str,
@@ -68,5 +107,23 @@ def generate_test(
     return GeneratedTest(
         file_path=file_path,
         test_code=test_code,
+        target=target,
+    )
+
+
+def generate_test_for_finding(
+    *,
+    source: str,
+    file_path: str,
+    line_start: int,
+) -> GeneratedTest:
+    target = _find_target_function(
+        source,
+        line_start,
+    )
+
+    return generate_test(
+        file_path=file_path,
+        source=source,
         target=target,
     )

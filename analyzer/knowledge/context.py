@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from analyzer.knowledge.hybrid_search import hybrid_search
 from analyzer.knowledge.models import RepositoryKnowledgeModel
-from analyzer.knowledge.search import (
-    KnowledgeSearchResult,
-    search_repository,
-)
+from analyzer.knowledge.semantic_index import SemanticIndex
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,39 +30,50 @@ def select_repository_context(
     limit: int = 10,
     max_chars_per_file: int = 12000,
 ) -> RepositoryContextSelection:
-    results = search_repository(
+    if limit <= 0:
+        return RepositoryContextSelection(
+            query=query,
+            items=(),
+        )
+
+    semantic_index = SemanticIndex()
+
+    if not semantic_index.ensure(knowledge):
+        return RepositoryContextSelection(
+            query=query,
+            items=(),
+        )
+
+    results = hybrid_search(
         knowledge,
         query,
+        semantic_index,
         limit=limit,
     )
 
     items: list[RepositoryContextItem] = []
 
     for result in results:
-        content = ""
-
-        try:
-            with open(
+        if result.kind == "file":
+            content = knowledge.source_contents.get(
                 result.file_path,
-                "r",
-                encoding="utf-8",
-            ) as handle:
-                content = handle.read(
-                    max_chars_per_file
-                )
-        except (
-            OSError,
-            UnicodeDecodeError,
-        ):
+                "",
+            )
+        else:
+            content = result.content
+
+        if not content:
             continue
+
+        content = content[:max_chars_per_file]
 
         items.append(
             RepositoryContextItem(
                 kind=result.kind,
-                identifier=result.identifier,
+                identifier=result.document_id,
                 file_path=result.file_path,
                 name=result.name,
-                score=result.score,
+                score=result.combined_score,
                 content=content,
             )
         )

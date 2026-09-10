@@ -24,30 +24,44 @@ def calculate_complexity(node):
 
 
 def nesting_depth(node):
+    """
+    Calculate maximum control-flow nesting depth.
+
+    AST tree depth is not equivalent to source-code nesting.
+    Only control-flow constructs contribute to this metric.
+    """
+
+    control_nodes = (
+        ast.If,
+        ast.For,
+        ast.AsyncFor,
+        ast.While,
+        ast.Try,
+        ast.With,
+        ast.AsyncWith,
+        ast.Match,
+    )
 
     max_depth = 0
 
     def visit(current, depth):
-
         nonlocal max_depth
+
+        next_depth = (
+            depth + 1
+            if isinstance(current, control_nodes)
+            else depth
+        )
 
         max_depth = max(
             max_depth,
-            depth
+            next_depth,
         )
 
-        for child in ast.iter_child_nodes(
-            current
-        ):
-            visit(
-                child,
-                depth + 1
-            )
+        for child in ast.iter_child_nodes(current):
+            visit(child, next_depth)
 
-    visit(
-        node,
-        0
-    )
+    visit(node, 0)
 
     return max_depth
 

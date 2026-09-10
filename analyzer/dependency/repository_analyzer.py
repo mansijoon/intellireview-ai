@@ -28,6 +28,8 @@ class DependencyRepositoryAnalyzer(RepositoryAnalyzer):
 
     metadata = RepositoryAnalyzerMetadata(
         analyzer_id="dependency",
+            depends_on=frozenset(),
+        source_sensitive=True,
         name="Dependency Analyzer",
         description=(
             "Builds the repository dependency graph and "
