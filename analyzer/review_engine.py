@@ -24,13 +24,23 @@ load_dotenv()
 
 USE_MOCK = False
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
-
 class _GeminiModel:
+    def __init__(self):
+        self._client = None
+
+    @property
+    def client(self):
+        if self._client is None:
+            api_key = os.getenv("GEMINI_API_KEY")
+            if not api_key:
+                raise RuntimeError(
+                    "GEMINI_API_KEY is required for AI review"
+                )
+            self._client = genai.Client(api_key=api_key)
+        return self._client
+
     def generate_content(self, prompt):
-        return client.models.generate_content(
+        return self.client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
         )
