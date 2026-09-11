@@ -27,15 +27,7 @@ jobs:
 
       - name: Run deterministic tests
         run: |
-          python -m pytest -q \
-            test_baseline.py \
-            test_baseline_builder.py \
-            test_baseline_comparison_service.py \
-            test_baseline_service.py \
-            test_git_repository.py \
-            test_github_integration.py \
-            tests/test_github_client_integration.py \
-            tests/test_pr_review_engine.py
+          python -m pytest -q tests
 
       - name: Repository analysis
         env:
