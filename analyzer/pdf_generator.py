@@ -9,6 +9,30 @@ from reportlab.lib.styles import (
 )
 
 
+def _as_text(value):
+    """Convert legacy strings and structured review values to PDF-safe text."""
+    if isinstance(value, str):
+        return value
+
+    if isinstance(value, dict):
+        structured = value.get("review", value)
+
+        if isinstance(structured, str):
+            return structured
+
+        verdict = getattr(structured, "verdict", None)
+        if verdict:
+            return verdict
+
+        return str(structured)
+
+    verdict = getattr(value, "verdict", None)
+    if verdict:
+        return verdict
+
+    return str(value)
+
+
 def generate_pdf(
     filename,
     score,
@@ -160,7 +184,7 @@ def generate_pdf(
 
     content.append(
         Paragraph(
-            review.replace(
+            _as_text(review).replace(
                 "\n",
                 "<br/>"
             ),

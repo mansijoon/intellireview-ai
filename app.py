@@ -1,3 +1,4 @@
+from pathlib import Path
 import streamlit as st
 
 from analyzer.review_engine import review_code
@@ -238,6 +239,12 @@ if (
         code = pr_diff
 
     elif analysis_mode == "Repository ZIP":
+
+        uploads_dir = "uploads"
+        Path(uploads_dir).mkdir(
+            parents=True,
+            exist_ok=True
+        )
 
         zip_path = "uploads/repository.zip"
 
@@ -1149,9 +1156,24 @@ if (
                 mime="application/pdf"
             )
 
+        import json
+
+        if isinstance(review, dict):
+            review_text = json.dumps(
+                review["review"],
+                default=lambda obj: (
+                    obj.__dict__
+                    if hasattr(obj, "__dict__")
+                    else str(obj)
+                ),
+                indent=2,
+            )
+        else:
+            review_text = str(review)
+
         st.download_button(
             label="Download TXT Report",
-            data=review,
+            data=review_text,
             file_name="review_report.txt",
             mime="text/plain"
         )
