@@ -27,8 +27,14 @@ jobs:
           pip install -e .
 
       - name: Run deterministic tests
+        env:
+          GEMINI_API_KEY: ""
+          USE_MOCK: "false"
+          INTELLIREVIEW_USE_MOCK: "false"
+          INTELLIREVIEW_DISABLE_KNOWLEDGE: "1"
         run: |
-          python -m pytest -q tests
+          rm -rf .intellireview-cache .pytest_cache
+          python -m pytest --cache-clear -q tests
 
       - name: Repository analysis
         env:

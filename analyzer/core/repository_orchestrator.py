@@ -243,8 +243,22 @@ class RepositoryAnalysisOrchestrator:
                 "_intellireview_analysis_cache"
             ] = self.cache
 
+        knowledge_disabled = (
+            __import__("os").getenv(
+                "INTELLIREVIEW_DISABLE_KNOWLEDGE",
+                "",
+            ).lower()
+            in {"1", "true", "yes"}
+        )
+
         for analyzer in self.registry.create_analyzers():
             analyzer_id = analyzer.metadata.analyzer_id
+
+            if (
+                analyzer_id == "knowledge"
+                and knowledge_disabled
+            ):
+                continue
 
             cached_result = None
 
