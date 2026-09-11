@@ -19,9 +19,18 @@ Files Reviewed: {total_files}
             f"\n\nFile: {result['file']}\n"
         )
 
-        summary += (
-            result["review"]
-        )
+        review = result.get("review", "")
+
+        if isinstance(review, dict):
+            import json
+            review = json.dumps(
+                review,
+                indent=2,
+                ensure_ascii=False,
+                default=str,
+            )
+
+        summary += str(review)
 
         summary += "\n"
 
