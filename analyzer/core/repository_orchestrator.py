@@ -32,6 +32,10 @@ class RepositoryAnalysisRun:
 
     results: tuple[RepositoryAnalysisResult, ...]
 
+    # Execution metrics used by benchmark tooling.
+    recomputed_analyzers: tuple[str, ...] = ()
+    reused_analyzers: tuple[str, ...] = ()
+
     @property
     def analyzer_count(self) -> int:
         return len(self.results)
@@ -176,6 +180,11 @@ class RepositoryAnalysisOrchestrator:
 
         results: list[RepositoryAnalysisResult] = []
 
+        # Benchmark instrumentation. These counters are intentionally kept
+        # on the run object so benchmark tooling can measure real execution
+        # rather than infer cache behavior from wall-clock time.
+        recomputed_analyzers: list[str] = []
+        reused_analyzers: list[str] = []
         previous_snapshot = None
 
         if self.cache is not None:
@@ -275,9 +284,11 @@ class RepositoryAnalysisOrchestrator:
                 )
 
             if cached_result is not None:
+                reused_analyzers.append(analyzer_id)
                 results.append(cached_result)
                 continue
 
+            recomputed_analyzers.append(analyzer_id)
             analyzer_started_at = datetime.now(timezone.utc)
 
             try:
@@ -325,4 +336,6 @@ class RepositoryAnalysisOrchestrator:
             started_at=started_at,
             completed_at=completed_at,
             results=tuple(results),
+            recomputed_analyzers=tuple(recomputed_analyzers),
+            reused_analyzers=tuple(reused_analyzers),
         )
